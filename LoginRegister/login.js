@@ -7,13 +7,66 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: '',
+      password: '',
+      loading: '',
+    };
+  }
+  _retrieveData = async key => {
+    try {
+      const data = await AsyncStorage.getItem('token');
+      console.log(data, 'token at tabNavigation');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  componentDidMount() {
+    this._retrieveData();
+  }
+  async handleLogin() {
+    if (this.state.email == '' || this.state.password == '') {
+      alert('Please fill all the details!!!');
+    } else {
+      await fetch('http://192.168.180.35:4000/login-user', {
+        method: 'POST',
+        crossDomain: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          if (data.status == 'ok') {
+            AsyncStorage.setItem('isLogged', JSON.stringify(true));
+            AsyncStorage.setItem('token', JSON.stringify(data.data));
+            this.props.navigation.navigate('Home');
+            alert('Login Successful!!');
+          } else {
+            alert(data.error);
+          }
+        });
+    }
+  }
   render() {
     return (
-      <View
+      <ScrollView
+        keyboardShouldPersistTaps="always"
         style={{
           flex: 1,
           backgroundColor: 'white',
@@ -33,12 +86,16 @@ class Login extends React.Component {
               style={styles.smallIcon}
             />
             <TextInput
-              placeholder="Mobile or Email"
+              placeholder="Email"
               autoCapitalize="none"
               placeholderTextColor="#b0b0b0"
               style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
+              value={this.state.email}
+              onChange={e =>
+                this.setState({
+                  email: e.nativeEvent.text,
+                })
+              }
             />
 
             {/* {this.state.uemail.length < 9 ? null : (
@@ -48,13 +105,43 @@ class Login extends React.Component {
           <View style={styles.action}>
             <FontAwesome name="lock" color="#0163d2" style={styles.smallIcon} />
             <TextInput
-              placeholder="Mobile or Email"
+              placeholder="Password"
               autoCapitalize="none"
               placeholderTextColor="#b0b0b0"
               style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
+              value={this.state.password}
+              secureTextEntry={!this.state.showPassword}
+              onChange={e =>
+                this.setState({
+                  password: e.nativeEvent.text,
+                })
+              }
             />
+            <TouchableOpacity
+              style={{marginRight: 10}}
+              hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
+              onPress={() =>
+                this.setState({
+                  showPassword: !this.state.showPassword,
+                })
+              }>
+              {this.state.password.length < 1 ? null : this.state
+                  .showPassword ? (
+                <Feather
+                  name="eye-off"
+                  style={{marginRight: -10}}
+                  color={this.state.password.length < 1 ? null : 'green'}
+                  size={23}
+                />
+              ) : (
+                <Feather
+                  name="eye"
+                  style={{marginRight: -10}}
+                  color={this.state.password.length < 1 ? null : 'green'}
+                  size={23}
+                />
+              )}
+            </TouchableOpacity>
 
             {/* {this.state.uemail.length < 9 ? null : (
               <Feather name="check-circle" color="green" size={20} />
@@ -68,7 +155,7 @@ class Login extends React.Component {
             }}>
             <TouchableOpacity
               onPress={() => {
-                this.props.navigation.navigate('Home');
+                this.handleLogin();
               }}
               style={styles.inBut}>
               <View>
@@ -90,7 +177,7 @@ class Login extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }

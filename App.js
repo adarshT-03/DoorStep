@@ -1,5 +1,5 @@
 import {NavigationContainer} from '@react-navigation/native';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {
   SafeAreaView,
@@ -10,21 +10,42 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import Login from './LoginRegister/login';
-import {
-  FirstScreenNavigator,
+import FirstScreenNavigator, {
   LoginScreenNavigator,
 } from './Navigation/stackNavigation';
-import TabNavigator from './Navigation/tabNavigation';
-import UserHomeScreen from './UserScreens/UserHomeSceen';
+// import TabNavigator from './Navigation/tabNavigation';
+// import UserHomeScreen from './UserScreens/UserHomeSceen';
 
 const App = () => {
+  const [isLogged, setIsLogged] = useState('');
+  const _retrieveData = async key => {
+    try {
+      const data = await AsyncStorage.getItem('token');
+      const logged = await AsyncStorage.getItem('isLogged');
+      console.log(logged, 'token at tabNavigation');
+      setIsLogged(logged);
+      console.log(isLogged == true, 'aaa');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    _retrieveData();
+  }, []);
   return (
     <>
       <StatusBar backgroundColor="#0163d2" barStyle="light-content" />
       <NavigationContainer>
-        {/* <TabNavigator /> */}
-        <LoginScreenNavigator />
+        {/* <LoginScreenNavigator/> */}
+
+        {isLogged == 'true' ? (
+          <FirstScreenNavigator />
+        ) : (
+          <LoginScreenNavigator />
+        )}
       </NavigationContainer>
     </>
   );

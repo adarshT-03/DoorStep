@@ -7,116 +7,269 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
+import {RadioButton} from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 class Register extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: '',
+      email: '',
+      userType: '',
+      password: '',
+      confirmPassword: '',
+      emailVerify: '',
+    };
+  }
+  handleEmail(e) {
+    var email = e.nativeEvent.text;
+    this.setState({
+      email: email,
+      emailVerify: false,
+    });
+    if (/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(email)) {
+      this.setState(
+        {
+          email: email,
+          emailVerify: true,
+        },
+        function () {
+          console.log(this.state.emailVerify);
+        },
+      );
+    }
+  }
+  async handleSubmit() {
+    if (
+      this.state.name == '' ||
+      this.state.email == '' ||
+      this.state.password == '' ||
+      this.state.userType == ''
+    ) {
+      alert('Please fill all the details!!!');
+    } else if (!this.state.emailVerify) {
+      alert('Please enter proper email address e.g xavier@gmail.com');
+    } else if (this.state.password.length < 6) {
+      alert('Password length should be greater then 6 letters.');
+    } else {
+      await fetch('http://192.168.180.35:4000/register-new-user', {
+        method: 'POST',
+        crossDomain: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          name: this.state.name,
+          email: this.state.email,
+          encryptedPassword: this.state.password,
+          userType: this.state.userType,
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          if (data.status == 'ok') {
+            alert('Registered Successful');
+            this.props.navigation.navigate('Login');
+          } else {
+            alert(data.error);
+          }
+        });
+    }
+    console.log(this.state);
+  }
   render() {
     return (
-      <View
+      <ScrollView
         style={{
           flex: 1,
           backgroundColor: 'white',
-        }}>
-        <View style={styles.logoContainer}>
-          <Image
-            style={styles.logo}
-         
-                        source={require('../assets/RegisterImage.png')}
-          />
-        </View>
-        <View style={styles.loginContainer}>
-          <Text style={styles.text_header}>Register!!</Text>
-          <View style={styles.action}>
-            <FontAwesome
-              name="user-o"
-              color="#0163d2"
-              style={styles.smallIcon}
+        }}
+        keyboardShouldPersistTaps="always">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'white',
+          }}>
+          <View style={styles.logoContainer}>
+            <Image
+              style={styles.logo}
+              source={require('../assets/RegisterImage.png')}
             />
-            <TextInput
-              placeholder="Mobile or Email"
-              autoCapitalize="none"
-              placeholderTextColor="#b0b0b0"
-              style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
-            />
+          </View>
+          <View style={styles.loginContainer}>
+            <Text style={styles.text_header}>Register!!</Text>
 
-            {/* {this.state.uemail.length < 9 ? null : (
+            <View style={styles.action}>
+              <FontAwesome
+                name="user-o"
+                color="#0163d2"
+                style={styles.smallIcon}
+              />
+              <TextInput
+                placeholder="Name"
+                autoCapitalize="words"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.name}
+                onChange={e => this.setState({name: e.nativeEvent.text})}
+              />
+            </View>
+            <View style={styles.action}>
+              <FontAwesome
+                name="envelope"
+                color="#0163d2"
+                style={[styles.smallIcon, {fontSize: 20}]}
+              />
+              <TextInput
+                placeholder="Email"
+                autoCapitalize="none"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.email}
+                onChange={e => this.handleEmail(e)}
+              />
+            </View>
+
+            <View style={styles.action}>
+              <FontAwesome
+                name="lock"
+                color="#0163d2"
+                style={styles.smallIcon}
+              />
+              <TextInput
+                placeholder="Password"
+                autoCapitalize="none"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.password}
+                secureTextEntry={!this.state.showPassword}
+                onChange={e => this.setState({password: e.nativeEvent.text})}
+              />
+               <TouchableOpacity
+                style={{marginRight: 10}}
+                hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
+                onPress={() =>
+                  this.setState({
+                    showPassword: !this.state.showPassword,
+                  })
+                }>
+                {this.state.password.length < 1 ? null : this.state
+                    .showPassword ? (
+                  <Feather
+                    name="eye-off"
+                    style={{marginRight: -10}}
+                    color={this.state.password.length < 1 ? null : 'green'}
+                    size={23}
+                  />
+                ) : (
+                  <Feather
+                    name="eye"
+                    style={{marginRight: -10}}
+                    color={this.state.password.length < 1 ? null : 'green'}
+                    size={23}
+                  />
+                )}
+              </TouchableOpacity>
+
+              {/* {this.state.uemail.length < 9 ? null : (
               <Feather name="check-circle" color="green" size={20} />
             )} */}
-          </View>
-          <View style={styles.action}>
-            <FontAwesome
-              name="user-o"
-              color="#0163d2"
-              style={styles.smallIcon}
-            />
-            <TextInput
-              placeholder="Mobile or Email"
-              autoCapitalize="none"
-              placeholderTextColor="#b0b0b0"
-              style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
-            />
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 10,
+                marginLeft: 20,
+              }}>
+              <View
+                style={{
+                  marginRight: 50,
+                }}>
+                <Text
+                  style={{color: '#0163d2', fontSize: 20, fontWeight: 'bold'}}>
+                  Register as
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginRight: 20,
+                  }}>
+                  <RadioButton
+                    color="#0163d2"
+                    uncheckedColor="#0163d2"
+                    value="user"
+                    status={
+                      this.state.userType === 'user' ? 'checked' : 'unchecked'
+                    }
+                    onPress={() =>
+                      this.setState({
+                        userType: 'user',
+                      })
+                    }
+                  />
+                  <Text style={{color: '#0163d2', fontSize: 16}}>User</Text>
+                </View>
 
-            {/* {this.state.uemail.length < 9 ? null : (
-              <Feather name="check-circle" color="green" size={20} />
-            )} */}
-          </View>
-          <View style={styles.action}>
-            <FontAwesome
-              name="user-o"
-              color="#0163d2"
-              style={styles.smallIcon}
-            />
-            <TextInput
-              placeholder="Mobile or Email"
-              autoCapitalize="none"
-              placeholderTextColor="#b0b0b0"
-              style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
-            />
+                <View
+                  style={{
+                    flexDirection: 'row',
 
-            {/* {this.state.uemail.length < 9 ? null : (
-              <Feather name="check-circle" color="green" size={20} />
-            )} */}
-          </View>
-          <View style={styles.action}>
-            <FontAwesome name="lock" color="#0163d2" style={styles.smallIcon} />
-            <TextInput
-              placeholder="Mobile or Email"
-              autoCapitalize="none"
-              placeholderTextColor="#b0b0b0"
-              style={styles.textInput}
-              //   value={this.state.uemail}
-              //   onChange={e => this.handleEmail(e)}
-            />
-
-            {/* {this.state.uemail.length < 9 ? null : (
-              <Feather name="check-circle" color="green" size={20} />
-            )} */}
-          </View>
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 15,
-            }}>
-            <TouchableOpacity style={styles.inBut}>
-              <View>
-                {/* {this.state.loading ? (
+                    alignItems: 'center',
+                  }}>
+                  <RadioButton
+                    color="#0163d2"
+                    uncheckedColor="#0163d2"
+                    value="driver"
+                    status={
+                      this.state.userType === 'driver' ? 'checked' : 'unchecked'
+                    }
+                    onPress={() =>
+                      this.setState({
+                        userType: 'driver',
+                      })
+                    }
+                  />
+                  <Text style={{color: '#0163d2', fontSize: 16}}>Driver</Text>
+                </View>
+              </View>
+            </View>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 15,
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.handleSubmit();
+                }}
+                style={styles.inBut}>
+                <View>
+                  {/* {this.state.loading ? (
                   <ActivityIndicator color="white" />
                 ) : ( */}
-                <Text style={styles.textSign}>Register</Text>
-                {/* )} */}
-              </View>
-            </TouchableOpacity>
+                  <Text style={styles.textSign}>Register</Text>
+                  {/* )} */}
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }
