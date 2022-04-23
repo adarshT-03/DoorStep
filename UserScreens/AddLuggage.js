@@ -10,6 +10,7 @@ class AddLuggage extends React.Component {
     super(props);
     this.state = {
       open: false,
+      dateText: 'Date of Pickup',
       date: new Date(),
       nameoforder: '',
       source: '',
@@ -19,9 +20,62 @@ class AddLuggage extends React.Component {
       price: '',
     };
   }
+  userData = this.props.route.params.userData;
   componentDidMount() {
-    const date = this.state.date.toDateString();
-    console.log(date);
+    console.log(this.userData, 'userAddLuggage');
+  }
+  async submitOrder() {
+    if (
+      this.state.date == '' ||
+      this.state.destination == '' ||
+      this.state.nameoforder == '' ||
+      this.state.numberofitems == '' ||
+      this.state.weight == '' ||
+      this.state.price == '' ||
+      this.state.source == ''
+    ) {
+      alert('Please fill all the fields!!');
+    } else if (
+      this.state.dateText == 'Date of Pickup' ||
+      this.state.dateText == ''
+    ) {
+      alert('Please Select pickup date!!');
+    } else {
+      await fetch('http://192.168.180.35:4000/add-order', {
+        method: 'POST',
+        crossDomain: true,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          nameO: this.state.nameoforder,
+          source: this.state.source,
+          destination: this.state.destination,
+          weight: this.state.weight,
+          date: this.state.date.toLocaleDateString(),
+          noofitems: this.state.numberofitems,
+          price: this.state.price,
+          placedBy: {
+            userid: this.userData._id,
+            name: this.userData.name,
+          },
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          if (data.status == 'ok') {
+            alert(
+              'Order Placed Successfully!!. You can see your orders in Order Pending!!',
+            );
+            this.props.navigation.navigate('UserHomeScreen');
+          } else {
+            alert(data.error);
+          }
+        });
+    }
   }
   render() {
     return (
@@ -41,6 +95,7 @@ class AddLuggage extends React.Component {
                   {
                     open: false,
                     date: date,
+                    dateText: date.toLocaleDateString(),
                   },
                   function () {
                     console.log(this.state.date.toLocaleDateString(), 'date');
@@ -53,10 +108,10 @@ class AddLuggage extends React.Component {
             />
             <TextInput
               label="Name of order"
-              //   value={this.state.author}
+              value={this.state.nameoforder}
               onChange={e =>
                 this.setState({
-                  author: e.nativeEvent.text,
+                  nameoforder: e.nativeEvent.text,
                 })
               }
               clearButtonMode="always"
@@ -71,10 +126,10 @@ class AddLuggage extends React.Component {
             />
             <TextInput
               label="Source"
-              //   value={this.state.author}
+              value={this.state.source}
               onChange={e =>
                 this.setState({
-                  author: e.nativeEvent.text,
+                  source: e.nativeEvent.text,
                 })
               }
               clearButtonMode="always"
@@ -89,10 +144,10 @@ class AddLuggage extends React.Component {
             />
             <TextInput
               label="Destination"
-              //   value={this.state.author}
+              value={this.state.destination}
               onChange={e =>
                 this.setState({
-                  author: e.nativeEvent.text,
+                  destination: e.nativeEvent.text,
                 })
               }
               clearButtonMode="always"
@@ -123,7 +178,7 @@ class AddLuggage extends React.Component {
                   color: 'grey',
                   fontSize: 16,
                 }}>
-                Date of Pickup
+                {this.state.dateText}
               </Text>
               <Feather name="calendar" size={25} color="black" />
             </TouchableOpacity>
@@ -136,12 +191,13 @@ class AddLuggage extends React.Component {
               }}>
               <TextInput
                 label="Weight"
-                //   value={this.state.author}
+                value={this.state.weight}
                 onChange={e =>
                   this.setState({
-                    author: e.nativeEvent.text,
+                    weight: e.nativeEvent.text,
                   })
                 }
+                keyboardType="number-pad"
                 clearButtonMode="always"
                 mode="outlined"
                 style={{
@@ -155,10 +211,11 @@ class AddLuggage extends React.Component {
               />
               <TextInput
                 label="Number of Items"
-                //   value={this.state.author}
+                value={this.state.numberofitems}
+                keyboardType="number-pad"
                 onChange={e =>
                   this.setState({
-                    author: e.nativeEvent.text,
+                    numberofitems: e.nativeEvent.text,
                   })
                 }
                 clearButtonMode="always"
@@ -173,11 +230,12 @@ class AddLuggage extends React.Component {
               />
             </View>
             <TextInput
-              label="Price"
-              //   value={this.state.author}
+              label="Price in ₹"
+              keyboardType="number-pad"
+              value={this.state.price}
               onChange={e =>
                 this.setState({
-                  author: e.nativeEvent.text,
+                  price: e.nativeEvent.text,
                 })
               }
               clearButtonMode="always"
@@ -191,22 +249,21 @@ class AddLuggage extends React.Component {
               outlineColor={'#0163D2'}
             />
           </View>
-          <View
+          {/* <View
             style={{
               borderColor: '#ccc',
               borderWidth: 1,
-              margin:15,
-              position:'relative',
-              height:130,
-              borderRadius:5
+              margin: 15,
+              position: 'relative',
+              height: 130,
+              borderRadius: 5,
             }}>
-            <View style={{position:'absolute',top:-40,marginLeft:10}}>
+            <View style={{position: 'absolute', top: -40, marginLeft: 10}}>
               <Image
                 style={{
                   height: 180,
                   width: 130,
                   marginTop: 0,
-                  
                 }}
                 source={require('../assets/orders.png')}
               />
@@ -216,18 +273,17 @@ class AddLuggage extends React.Component {
             style={{
               borderColor: '#ccc',
               borderWidth: 1,
-              margin:15,
-              position:'relative',
-              height:130,
-              borderRadius:5
+              margin: 15,
+              position: 'relative',
+              height: 130,
+              borderRadius: 5,
             }}>
-            <View style={{position:'absolute',top:-40,marginLeft:10}}>
+            <View style={{position: 'absolute', top: -40, marginLeft: 10}}>
               <Image
                 style={{
                   height: 180,
                   width: 130,
                   marginTop: 0,
-                  
                 }}
                 source={require('../assets/orders.png')}
               />
@@ -237,18 +293,17 @@ class AddLuggage extends React.Component {
             style={{
               borderColor: '#ccc',
               borderWidth: 1,
-              margin:15,
-              position:'relative',
-              height:130,
-              borderRadius:5
+              margin: 15,
+              position: 'relative',
+              height: 130,
+              borderRadius: 5,
             }}>
-            <View style={{position:'absolute',top:-40,marginLeft:10}}>
+            <View style={{position: 'absolute', top: -40, marginLeft: 10}}>
               <Image
                 style={{
                   height: 180,
                   width: 130,
                   marginTop: 0,
-                  
                 }}
                 source={require('../assets/orders.png')}
               />
@@ -258,18 +313,17 @@ class AddLuggage extends React.Component {
             style={{
               borderColor: '#ccc',
               borderWidth: 1,
-              margin:15,
-              position:'relative',
-              height:130,
-              borderRadius:5
+              margin: 15,
+              position: 'relative',
+              height: 130,
+              borderRadius: 5,
             }}>
-            <View style={{position:'absolute',top:-40,marginLeft:10}}>
+            <View style={{position: 'absolute', top: -40, marginLeft: 10}}>
               <Image
                 style={{
                   height: 180,
                   width: 130,
                   marginTop: 0,
-                  
                 }}
                 source={require('../assets/orders.png')}
               />
@@ -279,25 +333,27 @@ class AddLuggage extends React.Component {
             style={{
               borderColor: '#ccc',
               borderWidth: 1,
-              margin:15,
-              position:'relative',
-              height:130,
-              borderRadius:5
+              margin: 15,
+              position: 'relative',
+              height: 130,
+              borderRadius: 5,
             }}>
-            <View style={{position:'absolute',top:-40,marginLeft:10}}>
+            <View style={{position: 'absolute', top: -40, marginLeft: 10}}>
               <Image
                 style={{
                   height: 180,
                   width: 130,
                   marginTop: 0,
-                  
                 }}
                 source={require('../assets/orders.png')}
               />
-            </View>
-          </View>
+            </View> */}
+          {/* </View> */}
         </ScrollView>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            this.submitOrder();
+          }}>
           <View
             style={{
               width: '100%',

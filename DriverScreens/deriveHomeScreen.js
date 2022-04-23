@@ -4,39 +4,10 @@ import {FlatList} from 'react-native-gesture-handler';
 import Error from 'react-native-vector-icons/MaterialIcons';
 import Add from 'react-native-vector-icons/Ionicons';
 
-class UserOrders extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      orderData: '',
-    };
-    this.renderItems = this.renderItems.bind(this);
-  }
-  userData = this.props.route.params.userData;
+class DriverHomeScreen extends React.Component {
+  orderData = this.props.route.params.orderData;
   componentDidMount() {
-    console.log(this.userData, 'od');
-    fetch('http://192.168.180.35:4000/get-user-orders', {
-      method: 'POST',
-      crossDomain: true,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        orderId: this.userData.orderPlaced,
-      }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data, 'data at UserHomeScreen');
-        this.setState(
-          {
-            orderData: data.data.reverse(),
-          },
-          function () {},
-        );
-      });
+    console.log(this.orderData, 'od');
   }
   renderItems({item}) {
     console.log(item);
@@ -78,7 +49,7 @@ class UserOrders extends React.Component {
               }}>
               <Text style={styles.cardBigText}>Order By </Text>
               <Text style={{color: 'black', fontSize: 12}}>
-                {item.placedBy.name}
+                {item.placedBy == undefined ? '' : item.placedBy.name}
               </Text>
             </View>
             {item.status == '1' ? (
@@ -163,7 +134,7 @@ class UserOrders extends React.Component {
     return (
       <View>
         <FlatList
-          data={this.state.orderData}
+          data={this.orderData}
           renderItem={this.renderItems}
           contentContainerStyle={{paddingBottom: 50}}
         />
@@ -171,7 +142,7 @@ class UserOrders extends React.Component {
     );
   }
 }
-export default UserOrders;
+export default DriverHomeScreen;
 const styles = StyleSheet.create({
   cardView: {
     flexDirection: 'row',
