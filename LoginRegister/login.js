@@ -11,6 +11,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ActivityIndicator} from 'react-native-paper';
 
 class Login extends React.Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
-      loading: '',
+      loading: false,
     };
   }
   _retrieveData = async key => {
@@ -36,7 +37,10 @@ class Login extends React.Component {
     if (this.state.email == '' || this.state.password == '') {
       alert('Please fill all the details!!!');
     } else {
-      await fetch('http://192.168.180.35:4000/login-user', {
+      this.setState({
+        loading: true,
+      });
+      await fetch('https://doorstep-server-api.herokuapp.com/login-user', {
         method: 'POST',
         crossDomain: true,
         headers: {
@@ -57,9 +61,18 @@ class Login extends React.Component {
             AsyncStorage.setItem('token', JSON.stringify(data.data));
             this.props.navigation.navigate('Home');
             alert('Login Successful!!');
+            this.setState({
+              loading: false,
+            });
           } else {
             alert(data.error);
+            this.setState({
+              loading: false,
+            });
           }
+          this.setState({
+            loading: false,
+          });
         });
     }
   }
@@ -159,11 +172,11 @@ class Login extends React.Component {
               }}
               style={styles.inBut}>
               <View>
-                {/* {this.state.loading ? (
+                {this.state.loading ? (
                   <ActivityIndicator color="white" />
-                ) : ( */}
-                <Text style={styles.textSign}>Log in</Text>
-                {/* )} */}
+                ) : (
+                  <Text style={styles.textSign}>Log in</Text>
+                )}
               </View>
             </TouchableOpacity>
             <TouchableOpacity

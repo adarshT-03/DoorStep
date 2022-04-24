@@ -14,6 +14,7 @@ import Check from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import {FlatList} from 'react-native-gesture-handler';
+import Loading from './loading';
 
 class UserHomeScreen extends React.Component {
   constructor(props) {
@@ -21,7 +22,9 @@ class UserHomeScreen extends React.Component {
     this.state = {
       userData: '',
       orderData: '',
+      loadig: true,
     };
+    this.renderItems = this.renderItems.bind(this);
   }
   _retrieveData = async key => {
     try {
@@ -34,7 +37,7 @@ class UserHomeScreen extends React.Component {
   };
   getData = token => {
     console.log(token, 'tok');
-    fetch('http://192.168.180.35:4000/user-details', {
+    fetch('https://doorstep-server-api.herokuapp.com/user-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -57,36 +60,42 @@ class UserHomeScreen extends React.Component {
         );
       });
   };
-  componentDidMount() {
-    this.focusListener = this.props.navigation.addListener('focus', () => {
-      this._retrieveData();
-      fetch('http://192.168.180.35:4000/get-order-details', {
-        method: 'POST',
-        crossDomain: true,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'Access-Control-Allow-Origin': '*',
+  acceptOrder(orderId) {
+    fetch('https://doorstep-server-api.herokuapp.com/accept-order', {
+      method: 'POST',
+      crossDomain: true,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        status: 1,
+        orderId: orderId,
+        acceptedBy: {
+          driverId: this.state.userData._id,
+          name: this.state.userData.name,
         },
-        body: JSON.stringify({
-          status: 0,
-        }),
-      })
-        .then(res => res.json())
-        .then(data => {
-          // console.log(data, 'data at UserHomeScreen');
-          this.setState(
-            {
-              orderData: data.data.reverse(),
-            },
-            function () {
-              console.log(this.state.orderData);
-            },
-          );
-        });
-    });
-    this._retrieveData();
-    fetch('http://192.168.180.35:4000/get-order-details', {
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data, 'order Accepted');
+        if (data.status == 'ok') {
+          this.getOrderDetails();
+        }
+        // this.setState(
+        //   {
+        //     orderData: data.data.reverse(),
+        //   },
+        //   function () {
+        //     console.log(this.state.orderData);
+        //   },
+        // );
+      });
+  }
+  getOrderDetails() {
+    fetch('https://doorstep-server-api.herokuapp.com/get-order-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -100,10 +109,10 @@ class UserHomeScreen extends React.Component {
     })
       .then(res => res.json())
       .then(data => {
-        // console.log(data, 'data at UserHomeScreen');
+        console.log(data, 'data at UserHomeScreen');
         this.setState(
           {
-            orderData: data.data.reverse().slice(0, 3),
+            orderData: data.data.reverse(),
           },
           function () {
             console.log(this.state.orderData);
@@ -111,129 +120,177 @@ class UserHomeScreen extends React.Component {
         );
       });
   }
+
+  componentDidMount() {
+    this.focusListener = this.props.navigation.addListener('focus', () => {
+      this._retrieveData();
+      this.getOrderDetails();
+    });
+
+    this._retrieveData();
+    this.getOrderDetails();
+    setTimeout(() => {
+      this.setState({
+        loadig: false,
+      });
+    }, 2000);
+  }
   renderItems({item}) {
     console.log(item);
     return (
-      <View
-        style={{
-          borderColor: '#ccc',
-          borderWidth: 1,
-
-          width: Dimensions.get('screen').width * 0.95,
-          height: 170,
-          borderRadius: 5,
-          marginTop: 40,
-          flexDirection: 'row',
-          marginHorizontal: 10,
-        }}>
+      <View>
         <View
           style={{
-            top: -40,
-            paddingLeft: 10,
-            width: '38%',
-            // borderColor: '#ccc',
-            // borderWidth: 1,
-            // flexDirection:'column'
+            borderColor: '#ccc',
+            borderWidth: 1,
+
+            width: Dimensions.get('screen').width * 0.95,
+            height: 170,
+            borderRadius: 5,
+
+            marginTop: 40,
+            flexDirection: 'row',
+            marginHorizontal: 10,
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
           }}>
-          <Image
+          <View
             style={{
-              height: 180,
-              width: 130,
-              marginTop: 0,
-            }}
-            source={require('../assets/orders.png')}
-          />
-          <View style={{marginTop: -10}}>
-            <View
+              top: -40,
+              paddingLeft: 10,
+              width: '38%',
+              // borderColor: '#ccc',
+              // borderWidth: 1,
+              // flexDirection:'column'
+            }}>
+            <Image
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text style={styles.cardBigText}>Order By </Text>
-              <Text style={{color: 'black', fontSize: 12}}>
-                {item.placedBy == undefined ? '' : item.placedBy.name}
-              </Text>
-            </View>
-            {item.status == '1' ? (
+                height: 180,
+                width: 130,
+                marginTop: 0,
+              }}
+              source={require('../assets/orders.png')}
+            />
+            <View style={{marginTop: -10}}>
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                <Text style={styles.cardBigText}>Accepted By </Text>
-                <Text style={{color: 'black', fontSize: 12}}>Adarsh</Text>
+                <Text style={styles.cardBigText}>Order By </Text>
+                <Text style={{color: 'black', fontSize: 12}}>
+                  {item.placedBy == undefined ? '' : item.placedBy.name}
+                </Text>
               </View>
-            ) : null}
+              {item.status == '1' ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Text style={styles.cardBigText}>Accepted By </Text>
+                  <Text style={{color: 'black', fontSize: 12}}>Adarsh</Text>
+                </View>
+              ) : null}
+            </View>
           </View>
-        </View>
-        <View style={{width: '62%'}}>
-          {item.status == '0' ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 5,
-                justifyContent: 'flex-end',
-                marginHorizontal: 10,
-              }}>
-              <Error name="error" color="red" size={16} />
-              <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
-                Pending
-              </Text>
-            </View>
-          ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 5,
-                justifyContent: 'flex-end',
-                marginHorizontal: 10,
-              }}>
-              <Add name="checkmark-circle" color="green" size={16} />
-              <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
-                Accepted
-              </Text>
-            </View>
-          )}
+          <View style={{width: '62%'}}>
+            {item.status == '0' ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  justifyContent: 'flex-end',
+                  marginHorizontal: 10,
+                }}>
+                <Error name="error" color="red" size={16} />
+                <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
+                  Pending
+                </Text>
+              </View>
+            ) : (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  justifyContent: 'flex-end',
+                  marginHorizontal: 10,
+                }}>
+                <Add name="checkmark-circle" color="green" size={16} />
+                <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
+                  Accepted
+                </Text>
+              </View>
+            )}
 
-          <View style={styles.cardView}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Date </Text>
-              <Text style={styles.cardSmallText}>{item.date}</Text>
+            <View style={styles.cardView}>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Date </Text>
+                <Text style={styles.cardSmallText}>{item.date}</Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Number of Items</Text>
+                <Text style={styles.cardSmallText}>{item.noofitems}</Text>
+              </View>
             </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Number of Items</Text>
-              <Text style={styles.cardSmallText}>{item.noofitems}</Text>
+            <View style={styles.cardView}>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Source </Text>
+                <Text style={styles.cardSmallText} numberOfLines={1}>
+                  {item.source}
+                </Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Destination</Text>
+                <Text style={styles.cardSmallText}>{item.destination}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.cardView}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Source </Text>
-              <Text style={styles.cardSmallText} numberOfLines={1}>
-                {item.source}
-              </Text>
-            </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Destination</Text>
-              <Text style={styles.cardSmallText}>{item.destination}</Text>
-            </View>
-          </View>
-          <View style={styles.cardView}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Weight </Text>
-              <Text style={styles.cardSmallText}>{`${item.weight} Kg`}</Text>
-            </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Price</Text>
-              <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
+            <View style={styles.cardView}>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Weight </Text>
+                <Text style={styles.cardSmallText}>{`${item.weight} Kg`}</Text>
+              </View>
+              <View style={styles.cardText}>
+                <Text style={styles.cardBigText}>Price</Text>
+                <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
+              </View>
             </View>
           </View>
         </View>
+        <TouchableOpacity
+          onPress={() => this.acceptOrder(item._id)}
+          style={{
+            width: Dimensions.get('screen').width * 0.95,
+            backgroundColor: 'green',
+            height: 50,
+
+            marginHorizontal: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'row',
+            borderBottomLeftRadius: 5,
+            borderBottomRightRadius: 5,
+          }}>
+          <Check name="check" size={16} color="white" />
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 18,
+              fontWeight: '600',
+              marginLeft: 8,
+            }}>
+            Accept
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
   render() {
+    if (this.state.loadig) {
+      return <Loading />;
+    }
     return (
       <View
         style={{
@@ -256,16 +313,24 @@ class UserHomeScreen extends React.Component {
                 <Add name="add-circle-sharp" size={40} color="white" />
               </View>
             </TouchableOpacity>
-            <View style={[styles.card, {backgroundColor: '#27AE61'}]}>
-              <Text style={styles.textCard}>Orders Approved</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="checkmark-circle" size={40} color="white" />
-              </View>
-            </View>
             <TouchableOpacity
               onPress={() => {
                 this.props.navigation.navigate('UserOrders', {
                   userData: this.state.userData,
+                  order: 'approved',
+                });
+              }}
+              style={[styles.card, {backgroundColor: '#27AE61'}]}>
+              <Text style={styles.textCard}>Orders Approved</Text>
+              <View style={{marginLeft: 20}}>
+                <Add name="checkmark-circle" size={40} color="white" />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('UserOrders', {
+                  userData: this.state.userData,
+                  order: 'pending',
                 });
               }}
               style={[styles.card, {backgroundColor: '#FF3A31'}]}>
@@ -289,7 +354,7 @@ class UserHomeScreen extends React.Component {
           </>
         ) : (
           <View style={{marginTop: 40}}>
-            <View style={{marginBottom: 60}}>
+            <View style={{marginBottom: 20}}>
               <View
                 style={{
                   flexDirection: 'row',
@@ -325,12 +390,18 @@ class UserHomeScreen extends React.Component {
                 />
               </View>
             </View>
-            <View style={[styles.card, {backgroundColor: '#27AE61'}]}>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('AcceptedOrders', {
+                  userData: this.state.userData,
+                });
+              }}
+              style={[styles.card, {backgroundColor: '#27AE61'}]}>
               <Text style={styles.textCard}>Accepted Orders</Text>
               <View style={{marginLeft: 20}}>
                 <Add name="checkmark-circle" size={40} color="white" />
               </View>
-            </View>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 AsyncStorage.setItem('token', '');

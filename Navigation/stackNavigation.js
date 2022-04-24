@@ -9,6 +9,7 @@ import Register from '../LoginRegister/register';
 import Logout from '../UserScreens/logout';
 import AddLuggage from '../UserScreens/AddLuggage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
+import AcceptedOrders from '../DriverScreens/acceptedOrder';
 
 const Stack = createStackNavigator();
 const FirstScreenNavigator = () => {
@@ -43,12 +44,19 @@ const FirstScreenNavigator = () => {
         name="UserOrders"
         component={UserOrders}
       />
-       <Stack.Screen
+      <Stack.Screen
         options={{
           headerTitle: 'All Orders',
         }}
         name="AllOrder"
         component={DriverHomeScreen}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Accepted Orders',
+        }}
+        name="AcceptedOrders"
+        component={AcceptedOrders}
       />
       <Stack.Screen
         options={{

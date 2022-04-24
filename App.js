@@ -16,11 +16,13 @@ import Login from './LoginRegister/login';
 import FirstScreenNavigator, {
   LoginScreenNavigator,
 } from './Navigation/stackNavigation';
+import Loading from './UserScreens/loading';
 // import TabNavigator from './Navigation/tabNavigation';
 // import UserHomeScreen from './UserScreens/UserHomeSceen';
 
 const App = () => {
   const [isLogged, setIsLogged] = useState('');
+  const [loading, setLoading] = useState(true);
   const _retrieveData = async key => {
     try {
       const data = await AsyncStorage.getItem('token');
@@ -34,19 +36,26 @@ const App = () => {
   };
   useEffect(() => {
     _retrieveData();
+    setTimeout(() => setLoading(false), 1000);
   }, []);
   return (
     <>
-      <StatusBar backgroundColor="#0163d2" barStyle="light-content" />
-      <NavigationContainer>
-        {/* <LoginScreenNavigator/> */}
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <StatusBar backgroundColor="#0163d2" barStyle="light-content" />
+          <NavigationContainer>
+            {/* <LoginScreenNavigator/> */}
 
-        {isLogged == 'true' ? (
-          <FirstScreenNavigator />
-        ) : (
-          <LoginScreenNavigator />
-        )}
-      </NavigationContainer>
+            {isLogged == 'true' ? (
+              <FirstScreenNavigator />
+            ) : (
+              <LoginScreenNavigator />
+            )}
+          </NavigationContainer>
+        </>
+      )}
     </>
   );
 };

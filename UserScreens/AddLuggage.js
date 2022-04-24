@@ -41,7 +41,7 @@ class AddLuggage extends React.Component {
     ) {
       alert('Please Select pickup date!!');
     } else {
-      await fetch('http://192.168.180.35:4000/add-order', {
+      await fetch('https://doorstep-server-api.herokuapp.com/add-order', {
         method: 'POST',
         crossDomain: true,
         headers: {

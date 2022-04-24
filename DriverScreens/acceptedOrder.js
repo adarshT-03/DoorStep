@@ -3,9 +3,9 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import {FlatList} from 'react-native-gesture-handler';
 import Error from 'react-native-vector-icons/MaterialIcons';
 import Add from 'react-native-vector-icons/Ionicons';
-import Loading from './loading';
+import Loading from '../UserScreens/loading';
 
-class UserOrders extends React.Component {
+class AcceptedOrders extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,7 +15,6 @@ class UserOrders extends React.Component {
     this.renderItems = this.renderItems.bind(this);
   }
   userData = this.props.route.params.userData;
-  order = this.props.route.params.order;
   componentDidMount() {
     console.log(this.userData, 'od');
     fetch('https://doorstep-server-api.herokuapp.com/get-user-orders', {
@@ -27,28 +26,20 @@ class UserOrders extends React.Component {
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({
-        orderId: this.userData.orderPlaced,
+        orderId: this.userData.orderAccepted,
       }),
     })
       .then(res => res.json())
       .then(data => {
-        // console.log(data, 'data at UserHomeScreen');
-        const array = data.data;
-        const final = array.filter(x => {
-          // console.log(x.status);
-          if (this.order == 'pending') {
-            return x.status == '0';
-          } else {
-            return x.status == '1';
-          }
-        });
-        console.log(final);
+        console.log(data, 'data at acce');
         this.setState(
           {
-            orderData: final.reverse(),
+            orderData: data.data.reverse(),
             loading: false,
           },
-          function () {},
+          function () {
+            console.log(this.state.orderData);
+          },
         );
       });
   }
@@ -92,7 +83,7 @@ class UserOrders extends React.Component {
               }}>
               <Text style={styles.cardBigText}>Order By </Text>
               <Text style={{color: 'black', fontSize: 12}}>
-                {item.placedBy.name}
+                {item.placedBy == undefined ? '' : item.placedBy.name}
               </Text>
             </View>
             {item.status == '1' ? (
@@ -180,10 +171,7 @@ class UserOrders extends React.Component {
       return <Loading />;
     }
     return (
-      <View
-        style={{
-          flex: 1,
-        }}>
+      <View style={{flex: 1}}>
         {this.state.orderData == '' ? (
           <View
             style={{
@@ -214,7 +202,7 @@ class UserOrders extends React.Component {
     );
   }
 }
-export default UserOrders;
+export default AcceptedOrders;
 const styles = StyleSheet.create({
   cardView: {
     flexDirection: 'row',
