@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MapI from './map'
 
 import Login from './LoginRegister/login';
 import FirstScreenNavigator, {
@@ -40,13 +41,14 @@ const App = () => {
   }, []);
   return (
     <>
-      {loading ? (
+      {/* {loading ? (
         <Loading />
-      ) : (
+      ) : ( */}
         <>
           <StatusBar backgroundColor="#0163d2" barStyle="light-content" />
+          {/* <MapI/> */}
           <NavigationContainer>
-            {/* <LoginScreenNavigator/> */}
+          
 
             {isLogged == 'true' ? (
               <FirstScreenNavigator />
@@ -55,7 +57,7 @@ const App = () => {
             )}
           </NavigationContainer>
         </>
-      )}
+      {/* )} */}
     </>
   );
 };

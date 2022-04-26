@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import {FlatList} from 'react-native-gesture-handler';
 import Loading from './loading';
+import Map from 'react-native-vector-icons/FontAwesome5';
 
 class UserHomeScreen extends React.Component {
   constructor(props) {
@@ -37,7 +38,7 @@ class UserHomeScreen extends React.Component {
   };
   getData = token => {
     console.log(token, 'tok');
-    fetch('https://doorstep-server-api.herokuapp.com/user-details', {
+    fetch('http://192.168.227.35:4000/user-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -61,7 +62,7 @@ class UserHomeScreen extends React.Component {
       });
   };
   acceptOrder(orderId) {
-    fetch('https://doorstep-server-api.herokuapp.com/accept-order', {
+    fetch('http://192.168.227.35:4000/accept-order', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -95,7 +96,7 @@ class UserHomeScreen extends React.Component {
       });
   }
   getOrderDetails() {
-    fetch('https://doorstep-server-api.herokuapp.com/get-order-details', {
+    fetch('http://192.168.227.35:4000/get-order-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -235,18 +236,7 @@ class UserHomeScreen extends React.Component {
                 <Text style={styles.cardSmallText}>{item.noofitems}</Text>
               </View>
             </View>
-            <View style={styles.cardView}>
-              <View style={styles.cardText}>
-                <Text style={styles.cardBigText}>Source </Text>
-                <Text style={styles.cardSmallText} numberOfLines={1}>
-                  {item.source}
-                </Text>
-              </View>
-              <View style={styles.cardText}>
-                <Text style={styles.cardBigText}>Destination</Text>
-                <Text style={styles.cardSmallText}>{item.destination}</Text>
-              </View>
-            </View>
+           
             <View style={styles.cardView}>
               <View style={styles.cardText}>
                 <Text style={styles.cardBigText}>Weight </Text>
@@ -257,6 +247,33 @@ class UserHomeScreen extends React.Component {
                 <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
               </View>
             </View>
+            <TouchableOpacity
+            onPress={() => {
+              this.props.navigation.navigate('Map', {
+                source: item.source,
+                destination: item.destination,
+              });
+            }}
+            style={[
+              styles.cardView,
+              {
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 10,
+              },
+            ]}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={styles.cardBigText}>Source & Destination </Text>
+              <Text style={styles.cardSmallText}>View on Map</Text>
+            </View>
+            <Map
+              name="map-marked-alt"
+              size={25}
+              color="black"
+              style={{marginLeft: 10}}
+            />
+          </TouchableOpacity>
           </View>
         </View>
         <TouchableOpacity

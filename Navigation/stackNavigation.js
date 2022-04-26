@@ -10,6 +10,7 @@ import Logout from '../UserScreens/logout';
 import AddLuggage from '../UserScreens/AddLuggage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import AcceptedOrders from '../DriverScreens/acceptedOrder';
+import Map from '../map';
 
 const Stack = createStackNavigator();
 const FirstScreenNavigator = () => {
@@ -43,6 +44,14 @@ const FirstScreenNavigator = () => {
         }}
         name="UserOrders"
         component={UserOrders}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Orders',
+          headerShown: false,
+        }}
+        name="Map"
+        component={Map}
       />
       <Stack.Screen
         options={{

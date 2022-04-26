@@ -1,9 +1,10 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 import {FlatList} from 'react-native-gesture-handler';
 import Error from 'react-native-vector-icons/MaterialIcons';
 import Add from 'react-native-vector-icons/Ionicons';
 import Loading from '../UserScreens/loading';
+import Map from 'react-native-vector-icons/FontAwesome5';
 
 class AcceptedOrders extends React.Component {
   constructor(props) {
@@ -17,7 +18,7 @@ class AcceptedOrders extends React.Component {
   userData = this.props.route.params.userData;
   componentDidMount() {
     console.log(this.userData, 'od');
-    fetch('https://doorstep-server-api.herokuapp.com/get-user-orders', {
+    fetch('http://192.168.227.35:4000/get-user-orders', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -140,18 +141,7 @@ class AcceptedOrders extends React.Component {
               <Text style={styles.cardSmallText}>{item.noofitems}</Text>
             </View>
           </View>
-          <View style={styles.cardView}>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Source </Text>
-              <Text style={styles.cardSmallText} numberOfLines={1}>
-                {item.source}
-              </Text>
-            </View>
-            <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Destination</Text>
-              <Text style={styles.cardSmallText}>{item.destination}</Text>
-            </View>
-          </View>
+
           <View style={styles.cardView}>
             <View style={styles.cardText}>
               <Text style={styles.cardBigText}>Weight </Text>
@@ -162,6 +152,33 @@ class AcceptedOrders extends React.Component {
               <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
             </View>
           </View>
+          <TouchableOpacity
+            onPress={() => {
+              this.props.navigation.navigate('Map', {
+                source: item.source,
+                destination: item.destination,
+              });
+            }}
+            style={[
+              styles.cardView,
+              {
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 10,
+              },
+            ]}>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={styles.cardBigText}>Source & Destination </Text>
+              <Text style={styles.cardSmallText}>View on Map</Text>
+            </View>
+            <Map
+              name="map-marked-alt"
+              size={25}
+              color="black"
+              style={{marginLeft: 10}}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     );

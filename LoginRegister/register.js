@@ -55,7 +55,7 @@ class Register extends React.Component {
     } else if (this.state.password.length < 6) {
       alert('Password length should be greater then 6 letters.');
     } else {
-      await fetch('https://doorstep-server-api.herokuapp.com/register-new-user', {
+      await fetch('http://192.168.227.35:4000/register-new-user', {
         method: 'POST',
         crossDomain: true,
         headers: {
