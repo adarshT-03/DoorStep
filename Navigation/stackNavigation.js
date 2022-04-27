@@ -11,6 +11,7 @@ import AddLuggage from '../UserScreens/AddLuggage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import AcceptedOrders from '../DriverScreens/acceptedOrder';
 import Map from '../map';
+import DriverProfile from '../DriverScreens/driverProfile';
 
 const Stack = createStackNavigator();
 const FirstScreenNavigator = () => {
@@ -52,6 +53,13 @@ const FirstScreenNavigator = () => {
         }}
         name="Map"
         component={Map}
+      />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Profile',
+        }}
+        name="DriverProfile"
+        component={DriverProfile}
       />
       <Stack.Screen
         options={{

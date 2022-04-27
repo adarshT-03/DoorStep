@@ -19,7 +19,7 @@ class UserOrders extends React.Component {
   order = this.props.route.params.order;
   componentDidMount() {
     console.log(this.userData, 'od');
-    fetch('http://192.168.227.35:4000/get-user-orders', {
+    fetch('https://doorstep-server-api.herokuapp.com/get-user-orders', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -112,42 +112,66 @@ class UserOrders extends React.Component {
           </View>
         </View>
         <View style={{width: '62%'}}>
-          {item.status == '0' ? (
+          <View
+            style={{
+              flexDirection: 'row',
+
+              justifyContent: 'flex-end',
+              marginHorizontal: 10,
+              alignItems:'center'
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 marginTop: 5,
                 justifyContent: 'flex-end',
+                alignItems: 'center',
                 marginHorizontal: 10,
               }}>
-              <Error name="error" color="red" size={16} />
-              <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
-                Pending
+              <Text style={{color: '#707070', fontSize: 12}}>Date</Text>
+              <Text style={[styles.cardSmallText, {marginLeft: 5}]}>
+                {item.date}
               </Text>
             </View>
-          ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 5,
-                justifyContent: 'flex-end',
-                marginHorizontal: 10,
-              }}>
-              <Add name="checkmark-circle" color="green" size={16} />
-              <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
-                Accepted
-              </Text>
-            </View>
-          )}
+            {item.status == '0' ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  justifyContent: 'flex-end',
+                  marginHorizontal: 10,
+                }}>
+                <Error name="error" color="red" size={16} />
+                <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
+                  Pending
+                </Text>
+              </View>
+            ) : (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  justifyContent: 'flex-end',
+                  marginHorizontal: 10,
+                }}>
+                <Add name="checkmark-circle" color="green" size={16} />
+                <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
+                  Accepted
+                </Text>
+              </View>
+            )}
+          </View>
 
           <View style={styles.cardView}>
             <View style={styles.cardText}>
-              <Text style={styles.cardBigText}>Date </Text>
-              <Text style={styles.cardSmallText}>{item.date}</Text>
+              <Text style={styles.cardBigText}>Distance </Text>
+              <Text style={styles.cardSmallText}>{item.distance} Km</Text>
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardBigText}>Number of Items</Text>
-              <Text style={styles.cardSmallText}>{item.noofitems}</Text>
+              <Text style={styles.cardSmallText} numberOfLines={1}>
+                {item.noofitems}
+              </Text>
             </View>
           </View>
           {/* <View style={styles.cardView}>
@@ -165,11 +189,15 @@ class UserOrders extends React.Component {
           <View style={styles.cardView}>
             <View style={styles.cardText}>
               <Text style={styles.cardBigText}>Weight </Text>
-              <Text style={styles.cardSmallText}>{`${item.weight} Kg`}</Text>
+              <Text
+                style={styles.cardSmallText}
+                numberOfLines={1}>{`${item.weight} Kg`}</Text>
             </View>
             <View style={styles.cardText}>
               <Text style={styles.cardBigText}>Price</Text>
-              <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
+              <Text
+                style={styles.cardSmallText}
+                numberOfLines={1}>{`${item.price} ₹`}</Text>
             </View>
           </View>
           <TouchableOpacity

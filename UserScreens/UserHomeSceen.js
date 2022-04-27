@@ -16,6 +16,7 @@ import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import {FlatList} from 'react-native-gesture-handler';
 import Loading from './loading';
 import Map from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 class UserHomeScreen extends React.Component {
   constructor(props) {
@@ -38,7 +39,7 @@ class UserHomeScreen extends React.Component {
   };
   getData = token => {
     console.log(token, 'tok');
-    fetch('http://192.168.227.35:4000/user-details', {
+    fetch('https://doorstep-server-api.herokuapp.com/user-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -62,7 +63,7 @@ class UserHomeScreen extends React.Component {
       });
   };
   acceptOrder(orderId) {
-    fetch('http://192.168.227.35:4000/accept-order', {
+    fetch('https://doorstep-server-api.herokuapp.com/accept-order', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -96,7 +97,7 @@ class UserHomeScreen extends React.Component {
       });
   }
   getOrderDetails() {
-    fetch('http://192.168.227.35:4000/get-order-details', {
+    fetch('https://doorstep-server-api.herokuapp.com/get-order-details', {
       method: 'POST',
       crossDomain: true,
       headers: {
@@ -198,6 +199,27 @@ class UserHomeScreen extends React.Component {
             </View>
           </View>
           <View style={{width: '62%'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+
+              justifyContent: 'flex-end',
+              marginHorizontal: 10,
+              alignItems:'center'
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                marginTop: 5,
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                marginHorizontal: 10,
+              }}>
+              <Text style={{color: '#707070', fontSize: 12}}>Date</Text>
+              <Text style={[styles.cardSmallText, {marginLeft: 5}]}>
+                {item.date}
+              </Text>
+            </View>
             {item.status == '0' ? (
               <View
                 style={{
@@ -225,6 +247,7 @@ class UserHomeScreen extends React.Component {
                 </Text>
               </View>
             )}
+          </View>
 
             <View style={styles.cardView}>
               <View style={styles.cardText}>
@@ -236,7 +259,7 @@ class UserHomeScreen extends React.Component {
                 <Text style={styles.cardSmallText}>{item.noofitems}</Text>
               </View>
             </View>
-           
+
             <View style={styles.cardView}>
               <View style={styles.cardText}>
                 <Text style={styles.cardBigText}>Weight </Text>
@@ -248,32 +271,32 @@ class UserHomeScreen extends React.Component {
               </View>
             </View>
             <TouchableOpacity
-            onPress={() => {
-              this.props.navigation.navigate('Map', {
-                source: item.source,
-                destination: item.destination,
-              });
-            }}
-            style={[
-              styles.cardView,
-              {
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: 10,
-              },
-            ]}>
-            <View style={{justifyContent: 'center', alignItems: 'center'}}>
-              <Text style={styles.cardBigText}>Source & Destination </Text>
-              <Text style={styles.cardSmallText}>View on Map</Text>
-            </View>
-            <Map
-              name="map-marked-alt"
-              size={25}
-              color="black"
-              style={{marginLeft: 10}}
-            />
-          </TouchableOpacity>
+              onPress={() => {
+                this.props.navigation.navigate('Map', {
+                  source: item.source,
+                  destination: item.destination,
+                });
+              }}
+              style={[
+                styles.cardView,
+                {
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 10,
+                },
+              ]}>
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={styles.cardBigText}>Source & Destination </Text>
+                <Text style={styles.cardSmallText}>View on Map</Text>
+              </View>
+              <Map
+                name="map-marked-alt"
+                size={25}
+                color="black"
+                style={{marginLeft: 10}}
+              />
+            </TouchableOpacity>
           </View>
         </View>
         <TouchableOpacity
@@ -407,6 +430,19 @@ class UserHomeScreen extends React.Component {
                 />
               </View>
             </View>
+            <TouchableOpacity
+              onPress={() => {
+                this.props.navigation.navigate('DriverProfile', {
+                  userData: this.state.userData,
+                  // order: 'pending',
+                });
+              }}
+              style={[styles.card, {backgroundColor: '#FF3A31'}]}>
+              <Text style={styles.textCard}>View Profile</Text>
+              <View style={{marginLeft: 20}}>
+                <FontAwesome name="user" size={40} color="white" />
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
                 this.props.navigation.navigate('AcceptedOrders', {

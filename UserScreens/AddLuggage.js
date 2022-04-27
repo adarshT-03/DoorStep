@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  PermissionsAndroid,
+  ToastAndroid,
+} from 'react-native';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
 import {TextInput, Modal, Button} from 'react-native-paper';
 import DatePicker from 'react-native-date-picker';
@@ -32,9 +39,46 @@ class AddLuggage extends React.Component {
       modVisible: false,
       distance: 'Distance',
     };
+    this.onDismiss1 = this.onDismiss1.bind(this);
+    this.onDismiss2 = this.onDismiss2.bind(this);
   }
+
   userData = this.props.route.params.userData;
   componentDidMount() {
+    // const hasLocationPermission = async () => {
+
+    //   const hasPermission = await PermissionsAndroid.request(
+    //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //   );
+
+    //   if (hasPermission === PermissionsAndroid.RESULTS.GRANTED) {
+    //     console.log('lagi req permission');
+    //     return true;
+    //   }
+
+    //   const status = await PermissionsAndroid.check(
+    //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    //   );
+
+    //   if (status) {
+    //     console.log('permission diberikan');
+    //     return true;
+    //   }
+
+    //   if (status === PermissionsAndroid.RESULTS.DENIED) {
+    //     ToastAndroid.show(
+    //       'Location permission denied by user.',
+    //       ToastAndroid.LONG,
+    //     );
+    //   } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+    //     ToastAndroid.show(
+    //       'Location permission revoked by user.',
+    //       ToastAndroid.LONG,
+    //     );
+    //   }
+    //   return false;
+    // };
+    // hasLocationPermission();
     Geolocation.getCurrentPosition(info =>
       this.setState({
         longitude: info.coords.longitude,
@@ -59,7 +103,6 @@ class AddLuggage extends React.Component {
   async submitOrder() {
     if (
       this.state.date == '' ||
-    
       this.state.nameoforder == '' ||
       this.state.numberofitems == '' ||
       this.state.weight == '' ||
@@ -74,7 +117,7 @@ class AddLuggage extends React.Component {
     ) {
       alert('Please Select pickup date!!');
     } else {
-      await fetch('http://192.168.227.35:4000/add-order', {
+      await fetch('https://doorstep-server-api.herokuapp.com/add-order', {
         method: 'POST',
         crossDomain: true,
         headers: {
@@ -96,6 +139,7 @@ class AddLuggage extends React.Component {
           date: this.state.date.toLocaleDateString(),
           noofitems: this.state.numberofitems,
           price: this.state.price,
+          distance:this.state.distance,
           placedBy: {
             userid: this.userData._id,
             name: this.userData.name,
@@ -130,6 +174,17 @@ class AddLuggage extends React.Component {
     );
   }
   showModal() {
+    ToastAndroid.show(
+      'Please Turn On Your Location!!',
+      ToastAndroid.SHORT,
+      ToastAndroid.TOP,
+    );
+    ToastAndroid.show(
+      'Hold the marker and drag it to your source!!',
+      ToastAndroid.LONG,
+      ToastAndroid.TOP,
+    );
+
     this.setState({
       visible: true,
     });
@@ -165,6 +220,12 @@ class AddLuggage extends React.Component {
     });
   }
   showModal2() {
+    ToastAndroid.show(
+      'Hold the marker and drag it to your Destination!!',
+      ToastAndroid.LONG,
+      ToastAndroid.TOP,
+    );
+
     this.setState({
       modVisible: true,
     });

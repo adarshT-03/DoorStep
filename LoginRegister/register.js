@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {RadioButton} from 'react-native-paper';
+import {RadioButton, ActivityIndicator} from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
@@ -22,6 +22,12 @@ class Register extends React.Component {
       password: '',
       confirmPassword: '',
       emailVerify: '',
+      taxiNumber: '',
+      licenseId: '',
+      aadharNUmber: '',
+      accountNumber: '',
+      ifsc: '',
+      loading: false,
     };
   }
   handleEmail(e) {
@@ -54,8 +60,65 @@ class Register extends React.Component {
       alert('Please enter proper email address e.g xavier@gmail.com');
     } else if (this.state.password.length < 6) {
       alert('Password length should be greater then 6 letters.');
+    } else if (this.state.userType == 'driver') {
+      if (
+        this.state.taxiNumber == '' ||
+        this.state.aadharNUmber == '' ||
+        this.state.accountNumber == '' ||
+        this.state.ifcs == '' ||
+        this.state.licenseId == ''
+      ) {
+        alert('Please fill all the details!!!');
+      } else {
+        this.setState({
+          loading: true,
+        });
+        await fetch('https://doorstep-server-api.herokuapp.com/register-new-user', {
+          method: 'POST',
+          crossDomain: true,
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: JSON.stringify({
+            name: this.state.name,
+            email: this.state.email,
+            encryptedPassword: this.state.password,
+            userType: this.state.userType,
+            taxiNumber: this.state.taxiNumber,
+            licenseId: this.state.licenseId,
+            aadhar: this.state.aadharNUmber,
+            accountNumber: this.state.accountNumber,
+            ifsc: this.state.ifsc,
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log(data);
+            if (data.status == 'ok') {
+              alert('Registered Successful');
+              this.props.navigation.navigate('Login');
+              this.setState({
+                loading: false,
+              });
+            } else {
+              alert(data.error);
+              this.setState({
+                loading: false,
+              });
+            }
+            this.setState({
+              loading: false,
+            });
+          });
+      }
     } else {
-      await fetch('http://192.168.227.35:4000/register-new-user', {
+      this.setState({
+        loading: true,
+      });
+      // alert(1);
+      await fetch('https://doorstep-server-api.herokuapp.com/register-new-user', {
         method: 'POST',
         crossDomain: true,
         headers: {
@@ -68,6 +131,11 @@ class Register extends React.Component {
           email: this.state.email,
           encryptedPassword: this.state.password,
           userType: this.state.userType,
+          taxiNumber: this.state.taxiNumber,
+          licenseId: this.state.licenseId,
+          aadhar: this.state.aadharNUmber,
+          accountNumber: this.state.accountNumber,
+          ifsc: this.state.ifsc,
         }),
       })
         .then(res => res.json())
@@ -76,9 +144,18 @@ class Register extends React.Component {
           if (data.status == 'ok') {
             alert('Registered Successful');
             this.props.navigation.navigate('Login');
+            this.setState({
+              loading: false,
+            });
           } else {
             alert(data.error);
+            this.setState({
+              loading: false,
+            });
           }
+          this.setState({
+            loading: false,
+          });
         });
     }
     console.log(this.state);
@@ -105,88 +182,12 @@ class Register extends React.Component {
           <View style={styles.loginContainer}>
             <Text style={styles.text_header}>Register!!</Text>
 
-            <View style={styles.action}>
-              <FontAwesome
-                name="user-o"
-                color="#0163d2"
-                style={styles.smallIcon}
-              />
-              <TextInput
-                placeholder="Name"
-                autoCapitalize="words"
-                placeholderTextColor="#b0b0b0"
-                style={styles.textInput}
-                value={this.state.name}
-                onChange={e => this.setState({name: e.nativeEvent.text})}
-              />
-            </View>
-            <View style={styles.action}>
-              <FontAwesome
-                name="envelope"
-                color="#0163d2"
-                style={[styles.smallIcon, {fontSize: 20}]}
-              />
-              <TextInput
-                placeholder="Email"
-                autoCapitalize="none"
-                placeholderTextColor="#b0b0b0"
-                style={styles.textInput}
-                value={this.state.email}
-                onChange={e => this.handleEmail(e)}
-              />
-            </View>
-
-            <View style={styles.action}>
-              <FontAwesome
-                name="lock"
-                color="#0163d2"
-                style={styles.smallIcon}
-              />
-              <TextInput
-                placeholder="Password"
-                autoCapitalize="none"
-                placeholderTextColor="#b0b0b0"
-                style={styles.textInput}
-                value={this.state.password}
-                secureTextEntry={!this.state.showPassword}
-                onChange={e => this.setState({password: e.nativeEvent.text})}
-              />
-               <TouchableOpacity
-                style={{marginRight: 10}}
-                hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
-                onPress={() =>
-                  this.setState({
-                    showPassword: !this.state.showPassword,
-                  })
-                }>
-                {this.state.password.length < 1 ? null : this.state
-                    .showPassword ? (
-                  <Feather
-                    name="eye-off"
-                    style={{marginRight: -10}}
-                    color={this.state.password.length < 1 ? null : 'green'}
-                    size={23}
-                  />
-                ) : (
-                  <Feather
-                    name="eye"
-                    style={{marginRight: -10}}
-                    color={this.state.password.length < 1 ? null : 'green'}
-                    size={23}
-                  />
-                )}
-              </TouchableOpacity>
-
-              {/* {this.state.uemail.length < 9 ? null : (
-              <Feather name="check-circle" color="green" size={20} />
-            )} */}
-            </View>
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 marginTop: 10,
-                marginLeft: 20,
+                marginLeft: 0,
               }}>
               <View
                 style={{
@@ -247,6 +248,201 @@ class Register extends React.Component {
                 </View>
               </View>
             </View>
+
+            <View style={styles.action}>
+              <FontAwesome
+                name="user-o"
+                color="#0163d2"
+                style={styles.smallIcon}
+              />
+              <TextInput
+                placeholder="Name"
+                autoCapitalize="words"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.name}
+                onChange={e => this.setState({name: e.nativeEvent.text})}
+              />
+            </View>
+            <View style={styles.action}>
+              <FontAwesome
+                name="envelope"
+                color="#0163d2"
+                style={[styles.smallIcon, {fontSize: 20}]}
+              />
+              <TextInput
+                placeholder="Email"
+                autoCapitalize="none"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.email}
+                onChange={e => this.handleEmail(e)}
+              />
+            </View>
+            {this.state.userType == 'driver' ? (
+              <>
+                <View style={styles.action}>
+                  <FontAwesome
+                    name="taxi"
+                    color="#0163d2"
+                    style={[
+                      styles.smallIcon,
+                      {
+                        fontSize: 20,
+                        marginTop: 2,
+                      },
+                    ]}
+                  />
+                  <TextInput
+                    placeholder="Taxi Number"
+                    autoCapitalize="words"
+                    placeholderTextColor="#b0b0b0"
+                    style={styles.textInput}
+                    value={this.state.taxiNumber}
+                    onChange={e =>
+                      this.setState({taxiNumber: e.nativeEvent.text})
+                    }
+                  />
+                </View>
+                <View style={styles.action}>
+                  <FontAwesome
+                    name="drivers-license"
+                    color="#0163d2"
+                    style={[
+                      styles.smallIcon,
+                      {
+                        fontSize: 20,
+                        marginTop: 2,
+                      },
+                    ]}
+                  />
+                  <TextInput
+                    placeholder="License Id"
+                    autoCapitalize="words"
+                    placeholderTextColor="#b0b0b0"
+                    style={styles.textInput}
+                    value={this.state.licenseId}
+                    onChange={e =>
+                      this.setState({licenseId: e.nativeEvent.text})
+                    }
+                  />
+                </View>
+                <View style={styles.action}>
+                  <FontAwesome
+                    name="vcard-o"
+                    color="#0163d2"
+                    style={[
+                      styles.smallIcon,
+                      {
+                        fontSize: 20,
+                        marginTop: 2,
+                      },
+                    ]}
+                  />
+                  <TextInput
+                    placeholder="Aadhar Number"
+                    autoCapitalize="words"
+                    placeholderTextColor="#b0b0b0"
+                    style={styles.textInput}
+                    value={this.state.aadharNUmber}
+                    onChange={e =>
+                      this.setState({aadharNUmber: e.nativeEvent.text})
+                    }
+                  />
+                </View>
+                <View style={styles.action}>
+                  <FontAwesome
+                    name="credit-card"
+                    color="#0163d2"
+                    style={[
+                      styles.smallIcon,
+                      {
+                        fontSize: 20,
+                        marginTop: 2,
+                      },
+                    ]}
+                  />
+                  <TextInput
+                    placeholder="Account Number"
+                    autoCapitalize="words"
+                    placeholderTextColor="#b0b0b0"
+                    style={styles.textInput}
+                    value={this.state.accountNumber}
+                    onChange={e =>
+                      this.setState({accountNumber: e.nativeEvent.text})
+                    }
+                  />
+                </View>
+                <View style={styles.action}>
+                  <FontAwesome
+                    name="credit-card"
+                    color="#0163d2"
+                    style={[
+                      styles.smallIcon,
+                      {
+                        fontSize: 20,
+                        marginTop: 2,
+                      },
+                    ]}
+                  />
+                  <TextInput
+                    placeholder="Ifsc"
+                    autoCapitalize="words"
+                    placeholderTextColor="#b0b0b0"
+                    style={styles.textInput}
+                    value={this.state.ifsc}
+                    onChange={e => this.setState({ifsc: e.nativeEvent.text})}
+                  />
+                </View>
+              </>
+            ) : null}
+
+            <View style={styles.action}>
+              <FontAwesome
+                name="lock"
+                color="#0163d2"
+                style={styles.smallIcon}
+              />
+              <TextInput
+                placeholder="Password"
+                autoCapitalize="none"
+                placeholderTextColor="#b0b0b0"
+                style={styles.textInput}
+                value={this.state.password}
+                secureTextEntry={!this.state.showPassword}
+                onChange={e => this.setState({password: e.nativeEvent.text})}
+              />
+              <TouchableOpacity
+                style={{marginRight: 10}}
+                hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
+                onPress={() =>
+                  this.setState({
+                    showPassword: !this.state.showPassword,
+                  })
+                }>
+                {this.state.password.length < 1 ? null : this.state
+                    .showPassword ? (
+                  <Feather
+                    name="eye-off"
+                    style={{marginRight: -10}}
+                    color={this.state.password.length < 1 ? null : 'green'}
+                    size={23}
+                  />
+                ) : (
+                  <Feather
+                    name="eye"
+                    style={{marginRight: -10}}
+                    color={this.state.password.length < 1 ? null : 'green'}
+                    size={23}
+                  />
+                )}
+              </TouchableOpacity>
+
+              {/* {this.state.uemail.length < 9 ? null : (
+              <Feather name="check-circle" color="green" size={20} />
+            )} */}
+            </View>
+
             <View
               style={{
                 justifyContent: 'center',
@@ -259,11 +455,11 @@ class Register extends React.Component {
                 }}
                 style={styles.inBut}>
                 <View>
-                  {/* {this.state.loading ? (
-                  <ActivityIndicator color="white" />
-                ) : ( */}
-                  <Text style={styles.textSign}>Register</Text>
-                  {/* )} */}
+                  {this.state.loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.textSign}>Log in</Text>
+                  )}
                 </View>
               </TouchableOpacity>
             </View>

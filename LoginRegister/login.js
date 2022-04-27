@@ -40,7 +40,7 @@ class Login extends React.Component {
       this.setState({
         loading: true,
       });
-      await fetch('http://192.168.227.35:4000/login-user', {
+      await fetch('https://doorstep-server-api.herokuapp.com/login-user', {
         method: 'POST',
         crossDomain: true,
         headers: {
