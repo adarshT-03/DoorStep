@@ -12,6 +12,10 @@ import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
 import AcceptedOrders from '../DriverScreens/acceptedOrder';
 import Map from '../map';
 import DriverProfile from '../DriverScreens/driverProfile';
+import AdminHome from '../Admin';
+import AllOrders from '../Admin/orders';
+import AllUser from '../Admin/user';
+import Driver from '../Admin/driver';
 
 const Stack = createStackNavigator();
 const FirstScreenNavigator = () => {
@@ -54,6 +58,15 @@ const FirstScreenNavigator = () => {
         name="Map"
         component={Map}
       />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Orders',
+          headerShown: false,
+        }}
+        name="AdminHome"
+        component={AdminHome}
+      />
+
       <Stack.Screen
         options={{
           headerTitle: 'Profile',
@@ -100,8 +113,91 @@ export const LoginScreenNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}>
-      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen
+        options={{
+          gestureEnabled: false,
+        }}
+        name="Login"
+        component={Login}
+      />
       <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen
+        options={{
+          headerTitle: 'Home',
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#0163d2',
+            height: 60,
+          },
+          headerTitleAlign: 'center',
+          headerTintColor: '#fff',
+          headerTitle: 'Home',
+
+          headerTitleStyle: {
+            fontSize: 24,
+          },
+          headerLeft: null,
+        }}
+        name="AdminHome"
+        component={AdminHome}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#0163d2',
+            height: 60,
+          },
+          headerTitleAlign: 'center',
+          headerTintColor: '#fff',
+          headerTitle: 'All Orders',
+
+          headerTitleStyle: {
+            fontSize: 24,
+          },
+          headerLeft: null,
+        }}
+        name="AllOrders"
+        component={AllOrders}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#0163d2',
+            height: 60,
+          },
+          headerTitleAlign: 'center',
+          headerTintColor: '#fff',
+          headerTitle: 'Users',
+
+          headerTitleStyle: {
+            fontSize: 24,
+          },
+          headerLeft: null,
+        }}
+        name="AllUser"
+        component={AllUser}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#0163d2',
+            height: 60,
+          },
+          headerTitleAlign: 'center',
+          headerTintColor: '#fff',
+          headerTitle: 'Driver',
+
+          headerTitleStyle: {
+            fontSize: 24,
+          },
+          headerLeft: null,
+        }}
+        name="Driver"
+        component={Driver}
+      />
       <Stack.Screen name="Home" component={FirstScreenNavigator} />
     </Stack.Navigator>
   );

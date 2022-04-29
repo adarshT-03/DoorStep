@@ -256,7 +256,7 @@ class DriverHomeScreen extends React.Component {
               </View>
               <View style={styles.cardText}>
                 <Text style={styles.cardBigText}>Price</Text>
-                <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
+                <Text style={styles.cardSmallText} numberOfLines={1}>{`${item.price} ₹`}</Text>
               </View>
             </View>
             <TouchableOpacity

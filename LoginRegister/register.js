@@ -18,7 +18,7 @@ class Register extends React.Component {
     this.state = {
       name: '',
       email: '',
-      userType: '',
+      userType: 'user',
       password: '',
       confirmPassword: '',
       emailVerify: '',
@@ -73,26 +73,30 @@ class Register extends React.Component {
         this.setState({
           loading: true,
         });
-        await fetch('https://doorstep-server-api.herokuapp.com/register-new-user', {
-          method: 'POST',
-          crossDomain: true,
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'Access-Control-Allow-Origin': '*',
+        await fetch(
+          'https://doorstep-server-api.herokuapp.com/register-new-user',
+          {
+            method: 'POST',
+            crossDomain: true,
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify({
+              name: this.state.name,
+              email: this.state.email,
+              encryptedPassword: this.state.password,
+              userType: this.state.userType,
+              taxiNumber: this.state.taxiNumber,
+              licenseId: this.state.licenseId,
+              aadhar: this.state.aadharNUmber,
+              accountNumber: this.state.accountNumber,
+              ifsc: this.state.ifsc,
+              status: 0,
+            }),
           },
-          body: JSON.stringify({
-            name: this.state.name,
-            email: this.state.email,
-            encryptedPassword: this.state.password,
-            userType: this.state.userType,
-            taxiNumber: this.state.taxiNumber,
-            licenseId: this.state.licenseId,
-            aadhar: this.state.aadharNUmber,
-            accountNumber: this.state.accountNumber,
-            ifsc: this.state.ifsc,
-          }),
-        })
+        )
           .then(res => res.json())
           .then(data => {
             console.log(data);
@@ -131,11 +135,7 @@ class Register extends React.Component {
           email: this.state.email,
           encryptedPassword: this.state.password,
           userType: this.state.userType,
-          taxiNumber: this.state.taxiNumber,
-          licenseId: this.state.licenseId,
-          aadhar: this.state.aadharNUmber,
-          accountNumber: this.state.accountNumber,
-          ifsc: this.state.ifsc,
+          status: 1,
         }),
       })
         .then(res => res.json())
@@ -458,7 +458,7 @@ class Register extends React.Component {
                   {this.state.loading ? (
                     <ActivityIndicator color="white" />
                   ) : (
-                    <Text style={styles.textSign}>Log in</Text>
+                    <Text style={styles.textSign}>Register</Text>
                   )}
                 </View>
               </TouchableOpacity>

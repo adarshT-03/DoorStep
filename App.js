@@ -41,9 +41,9 @@ const App = () => {
   }, []);
   return (
     <>
-      {/* {loading ? (
+      {loading ? (
         <Loading />
-      ) : ( */}
+      ) : (
         <>
           <StatusBar backgroundColor="#0163d2" barStyle="light-content" />
           {/* <MapI/> */}
@@ -57,7 +57,7 @@ const App = () => {
             )}
           </NavigationContainer>
         </>
-      {/* )} */}
+      )} 
     </>
   );
 };

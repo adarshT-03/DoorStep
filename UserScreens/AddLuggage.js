@@ -138,8 +138,8 @@ class AddLuggage extends React.Component {
           weight: this.state.weight,
           date: this.state.date.toLocaleDateString(),
           noofitems: this.state.numberofitems,
-          price: this.state.price,
-          distance:this.state.distance,
+          price: Math.round(this.state.price),
+          distance: this.state.distance,
           placedBy: {
             userid: this.userData._id,
             name: this.userData.name,

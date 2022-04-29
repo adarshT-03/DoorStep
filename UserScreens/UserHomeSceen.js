@@ -13,7 +13,7 @@ import Error from 'react-native-vector-icons/MaterialIcons';
 import Check from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DriverHomeScreen from '../DriverScreens/deriveHomeScreen';
-import {FlatList} from 'react-native-gesture-handler';
+import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import Loading from './loading';
 import Map from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -58,7 +58,13 @@ class UserHomeScreen extends React.Component {
           {
             userData: data.data,
           },
-          function () {},
+          function () {
+            setTimeout(() => {
+              this.setState({
+                loadig: false,
+              });
+            }, 1000);
+          },
         );
       });
   };
@@ -85,6 +91,7 @@ class UserHomeScreen extends React.Component {
         console.log(data, 'order Accepted');
         if (data.status == 'ok') {
           this.getOrderDetails();
+          this._retrieveData();
         }
         // this.setState(
         //   {
@@ -131,11 +138,6 @@ class UserHomeScreen extends React.Component {
 
     this._retrieveData();
     this.getOrderDetails();
-    setTimeout(() => {
-      this.setState({
-        loadig: false,
-      });
-    }, 2000);
   }
   renderItems({item}) {
     console.log(item);
@@ -199,55 +201,55 @@ class UserHomeScreen extends React.Component {
             </View>
           </View>
           <View style={{width: '62%'}}>
-          <View
-            style={{
-              flexDirection: 'row',
-
-              justifyContent: 'flex-end',
-              marginHorizontal: 10,
-              alignItems:'center'
-            }}>
             <View
               style={{
                 flexDirection: 'row',
-                marginTop: 5,
+
                 justifyContent: 'flex-end',
-                alignItems: 'center',
                 marginHorizontal: 10,
+                alignItems: 'center',
               }}>
-              <Text style={{color: '#707070', fontSize: 12}}>Date</Text>
-              <Text style={[styles.cardSmallText, {marginLeft: 5}]}>
-                {item.date}
-              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 5,
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  marginHorizontal: 10,
+                }}>
+                <Text style={{color: '#707070', fontSize: 12}}>Date</Text>
+                <Text style={[styles.cardSmallText, {marginLeft: 5}]}>
+                  {item.date}
+                </Text>
+              </View>
+              {item.status == '0' ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    justifyContent: 'flex-end',
+                    marginHorizontal: 10,
+                  }}>
+                  <Error name="error" color="red" size={16} />
+                  <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
+                    Pending
+                  </Text>
+                </View>
+              ) : (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginTop: 5,
+                    justifyContent: 'flex-end',
+                    marginHorizontal: 10,
+                  }}>
+                  <Add name="checkmark-circle" color="green" size={16} />
+                  <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
+                    Accepted
+                  </Text>
+                </View>
+              )}
             </View>
-            {item.status == '0' ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 5,
-                  justifyContent: 'flex-end',
-                  marginHorizontal: 10,
-                }}>
-                <Error name="error" color="red" size={16} />
-                <Text style={{color: 'red', fontSize: 12, marginLeft: 5}}>
-                  Pending
-                </Text>
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 5,
-                  justifyContent: 'flex-end',
-                  marginHorizontal: 10,
-                }}>
-                <Add name="checkmark-circle" color="green" size={16} />
-                <Text style={{color: 'green', fontSize: 12, marginLeft: 5}}>
-                  Accepted
-                </Text>
-              </View>
-            )}
-          </View>
 
             <View style={styles.cardView}>
               <View style={styles.cardText}>
@@ -267,7 +269,9 @@ class UserHomeScreen extends React.Component {
               </View>
               <View style={styles.cardText}>
                 <Text style={styles.cardBigText}>Price</Text>
-                <Text style={styles.cardSmallText}>{`${item.price} ₹`}</Text>
+                <Text
+                  style={styles.cardSmallText}
+                  numberOfLines={1}>{`${item.price} ₹`}</Text>
               </View>
             </View>
             <TouchableOpacity
@@ -332,144 +336,147 @@ class UserHomeScreen extends React.Component {
       return <Loading />;
     }
     return (
-      <View
-        style={{
-          // alignItems: 'center',
-          // justifyContent: 'center',
-          flex: 1,
-        }}>
-        {this.state.userData.userType == 'user' ? (
-          <>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.card}
-              onPress={() => {
-                this.props.navigation.navigate('AddLuggage', {
-                  userData: this.state.userData,
-                });
-              }}>
-              <Text style={styles.textCard}>Add Luggage</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="add-circle-sharp" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('UserOrders', {
-                  userData: this.state.userData,
-                  order: 'approved',
-                });
-              }}
-              style={[styles.card, {backgroundColor: '#27AE61'}]}>
-              <Text style={styles.textCard}>Orders Approved</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="checkmark-circle" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('UserOrders', {
-                  userData: this.state.userData,
-                  order: 'pending',
-                });
-              }}
-              style={[styles.card, {backgroundColor: '#FF3A31'}]}>
-              <Text style={styles.textCard}>Orders Pending</Text>
-              <View style={{marginLeft: 20}}>
-                <Error name="error" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                AsyncStorage.setItem('token', '');
-                AsyncStorage.setItem('isLogged', 'false');
-                this.props.navigation.navigate('Login');
-              }}
-              style={[styles.card, {backgroundColor: '#5956D6'}]}>
-              <Text style={styles.textCard}>Log Out</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="log-out" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <View style={{marginTop: 40}}>
-            <View style={{marginBottom: 20}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginHorizontal: 20,
+      <ScrollView>
+        <View
+          style={{
+            // alignItems: 'center',
+            // justifyContent: 'center',
+            flex: 1,
+          }}>
+          {this.state.userData.userType == 'user' ? (
+            <>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.card}
+                onPress={() => {
+                  this.props.navigation.navigate('AddLuggage', {
+                    userData: this.state.userData,
+                  });
                 }}>
-                <Text style={{color: 'black', fontSize: 22, fontWeight: '700'}}>
-                  New Orders
-                </Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.props.navigation.navigate('AllOrder', {
-                      orderData: this.state.orderData,
-                    });
+                <Text style={styles.textCard}>Add Luggage</Text>
+                <View style={{marginLeft: 20}}>
+                  <Add name="add-circle-sharp" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('UserOrders', {
+                    userData: this.state.userData,
+                    order: 'approved',
+                  });
+                }}
+                style={[styles.card, {backgroundColor: '#27AE61'}]}>
+                <Text style={styles.textCard}>Orders Approved</Text>
+                <View style={{marginLeft: 20}}>
+                  <Add name="checkmark-circle" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('UserOrders', {
+                    userData: this.state.userData,
+                    order: 'pending',
+                  });
+                }}
+                style={[styles.card, {backgroundColor: '#FF3A31'}]}>
+                <Text style={styles.textCard}>Orders Pending</Text>
+                <View style={{marginLeft: 20}}>
+                  <Error name="error" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  AsyncStorage.setItem('token', '');
+                  AsyncStorage.setItem('isLogged', 'false');
+                  this.props.navigation.replace('Login');
+                }}
+                style={[styles.card, {backgroundColor: '#5956D6'}]}>
+                <Text style={styles.textCard}>Log Out</Text>
+                <View style={{marginLeft: 20}}>
+                  <Add name="log-out" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <View style={{marginTop: 40}}>
+              <View style={{marginBottom: 20}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginHorizontal: 20,
                   }}>
                   <Text
-                    style={{
-                      color: '#707070',
-                      fontSize: 18,
-                      fontWeight: 'bold',
-                    }}>
-                    See All
+                    style={{color: 'black', fontSize: 22, fontWeight: '700'}}>
+                    New Orders
                   </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.props.navigation.navigate('AllOrder', {
+                        orderData: this.state.orderData,
+                      });
+                    }}>
+                    <Text
+                      style={{
+                        color: '#707070',
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                      }}>
+                      See All
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={{marginTop: 30}}>
+                  <FlatList
+                    horizontal
+                    data={this.state.orderData.slice(0, 3)}
+                    renderItem={this.renderItems}
+                    numColumns={1}
+                    showsHorizontalScrollIndicator={true}
+                  />
+                </View>
               </View>
-              <View style={{marginTop: 30}}>
-                <FlatList
-                  horizontal
-                  data={this.state.orderData.slice(0, 3)}
-                  renderItem={this.renderItems}
-                  numColumns={1}
-                  showsHorizontalScrollIndicator={true}
-                />
-              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('DriverProfile', {
+                    userData: this.state.userData,
+                    // order: 'pending',
+                  });
+                }}
+                style={[styles.card, {backgroundColor: '#FF3A31'}]}>
+                <Text style={styles.textCard}>View Profile</Text>
+                <View style={{marginLeft: 20}}>
+                  <FontAwesome name="user" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.props.navigation.navigate('AcceptedOrders', {
+                    userData: this.state.userData,
+                  });
+                }}
+                style={[styles.card, {backgroundColor: '#27AE61'}]}>
+                <Text style={styles.textCard}>Accepted Orders</Text>
+                <View style={{marginLeft: 20}}>
+                  <Add name="checkmark-circle" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  AsyncStorage.setItem('token', '');
+                  AsyncStorage.setItem('isLogged', 'false');
+                  this.props.navigation.replace('Login');
+                }}
+                style={[styles.card, {backgroundColor: '#5956D6'}]}>
+                <Text style={styles.textCard}>Log Out</Text>
+                <View style={{marginLeft: 20}}>
+                  <Add name="log-out" size={40} color="white" />
+                </View>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('DriverProfile', {
-                  userData: this.state.userData,
-                  // order: 'pending',
-                });
-              }}
-              style={[styles.card, {backgroundColor: '#FF3A31'}]}>
-              <Text style={styles.textCard}>View Profile</Text>
-              <View style={{marginLeft: 20}}>
-                <FontAwesome name="user" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                this.props.navigation.navigate('AcceptedOrders', {
-                  userData: this.state.userData,
-                });
-              }}
-              style={[styles.card, {backgroundColor: '#27AE61'}]}>
-              <Text style={styles.textCard}>Accepted Orders</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="checkmark-circle" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                AsyncStorage.setItem('token', '');
-                AsyncStorage.setItem('isLogged', 'false');
-                this.props.navigation.navigate('Login');
-              }}
-              style={[styles.card, {backgroundColor: '#5956D6'}]}>
-              <Text style={styles.textCard}>Log Out</Text>
-              <View style={{marginLeft: 20}}>
-                <Add name="log-out" size={40} color="white" />
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      </ScrollView>
     );
   }
 }

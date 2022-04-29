@@ -33,8 +33,37 @@ class Login extends React.Component {
   componentDidMount() {
     this._retrieveData();
   }
+
+  async getData(token) {
+    console.log(token);
+    fetch('https://doorstep-server-api.herokuapp.com/user-details', {
+      method: 'POST',
+      crossDomain: true,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        token: token,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data, 'data at log');
+        if (data.data.status == 0) {
+          alert('Wait for admin to accept your Registration!!');
+        } else {
+          alert('Login Successful');
+          this.props.navigation.navigate('Home');
+        }
+      });
+  }
   async handleLogin() {
-    if (this.state.email == '' || this.state.password == '') {
+    if (this.state.email == 'admin' && this.state.password == 'admin123') {
+      alert('Welcome!!!');
+      this.props.navigation.navigate('AdminHome');
+    } else if (this.state.email == '' || this.state.password == '') {
       alert('Please fill all the details!!!');
     } else {
       this.setState({
@@ -59,8 +88,8 @@ class Login extends React.Component {
           if (data.status == 'ok') {
             AsyncStorage.setItem('isLogged', JSON.stringify(true));
             AsyncStorage.setItem('token', JSON.stringify(data.data));
-            this.props.navigation.navigate('Home');
-            alert('Login Successful!!');
+            this.getData(JSON.stringify(data.data));
+
             this.setState({
               loading: false,
             });
